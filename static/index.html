@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اسپید پنل — پنل مدیریت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A1F; --bg-alt: #0D0D26; --panel: #161230; --panel-2: #1C1740;
+    --border: #2E2560; --border-soft: #221C4A; --text: #ECEAFB; --text-dim: #A79FD6;
+    --text-faint: #6B62A0; --accent: #6C5CE7; --accent-dim: #5443D0;
+    --accent-soft: rgba(108,92,231,0.16); --violet: #4F8BFF; --violet-soft: rgba(79,139,255,0.14);
+    --warn: #F5B942; --danger: #F0596B; --ok: #6C5CE7;
+    --grid-line: rgba(255,255,255,0.035); --shadow: 0 20px 50px -20px rgba(10,5,40,0.7);
+  }
+  :root[data-theme="light"] {
+    --bg: #F3F1FB; --bg-alt:#ECE9F9; --panel:#FFFFFF; --panel-2:#F6F4FC;
+    --border:#DFD9F5; --border-soft:#E9E4FA; --text:#160F33; --text-dim:#564C8C;
+    --text-faint:#948BC4; --accent:#5B4FE0; --accent-dim:#4A3FC4;
+    --accent-soft: rgba(91,79,224,0.1); --violet:#3B6FED; --violet-soft: rgba(59,111,237,0.1);
+    --grid-line: rgba(22,15,51,0.035); --shadow: 0 20px 50px -25px rgba(40,20,90,0.25);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0A0A1F; --bg-alt:#0D0D26; --panel:#161230; --panel-2:#1C1740;
+      --border:#2E2560; --border-soft:#221C4A; --text:#ECEAFB; --text-dim:#A79FD6;
+      --text-faint:#6B62A0; --accent:#6C5CE7; --accent-dim:#5443D0;
+      --accent-soft: rgba(108,92,231,0.16); --violet:#4F8BFF; --violet-soft: rgba(79,139,255,0.14);
+      --grid-line: rgba(255,255,255,0.035); --shadow: 0 20px 50px -20px rgba(10,5,40,0.7);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 42px 42px;
+    color: var(--text); font-family: 'Vazirmatn', system-ui, sans-serif;
+    font-size: 14.5px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; direction: ltr; unicode-bidi: embed; }
+  a { color: inherit; text-decoration: none; }
+  button, input, select { font-family: inherit; }
+
+  /* ==================== TOP BAR - HIGHER, BIGGER, MORE ICONS ==================== */
+  .top-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; border-bottom: 1px solid var(--border-soft);
+    max-width: 1200px; margin: 0 auto;
+    background: rgba(6,7,18,.72)!important;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.2);
+    border-bottom: 1px solid rgba(130,145,255,.18);
+  }
+  .top-header .brand { display: flex; align-items: center; gap: 9px; }
+  .top-header .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--violet)); display:flex; align-items:center; justify-content:center; }
+  .top-header .brand-mark svg { width: 16px; height: 16px; }
+  .top-header .brand-name { font-weight: 800; font-size: 16px; }
+  .top-header .brand-name span { color: var(--accent); }
+  .top-header .protos-mini { display: flex; gap: 6px; }
+
+  /* Extra icons in top right */
+  .top-header .extra-icons {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s;
+  }
+  .icon-btn:hover { background: rgba(108,92,231,0.2); transform: scale(1.1); }
+  .icon-btn svg { width: 18px; height: 18px; opacity: .8; }
+
+  /* ==================== PAGE TABS - HIGHER, BIGGER, FLOATING ==================== */
+  .page-tabs {
+    display: flex; gap: 8px; justify-content: center; padding: 16px 16px 18px;
+    flex-wrap: wrap; background: linear-gradient(180deg,rgba(6,7,18,.88),transparent)!important;
+    backdrop-filter: blur(12px);
+  }
+  .page-tab {
+    padding: 12px 24px; border-radius: 24px; font-size: 13.5px; font-weight: 700;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text-dim);
+    cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+  }
+  .page-tab:hover { border-color: var(--accent); color: var(--text); transform: translateY(-3px); }
+  .page-tab.active { 
+    background: linear-gradient(135deg, var(--accent), var(--violet)); 
+    color: #04101F; border-color: transparent; 
+    box-shadow: 0 10px 32px rgba(99,76,255,.35);
+  }
+  .page-tab.active:after {
+    content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 4px;
+    background: linear-gradient(to right, var(--accent), var(--violet));
+  }
+
+  .page { display: none; max-width: 1200px; margin: 0 auto; padding: 0 24px 60px; animation: fadein .25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .page.active { display: block; }
+
+  /* ===== Login page ===== */
+  .login-wrap { min-height: 70vh; display: flex; align-items: center; justify-content: center; position: relative; }
+  .login-badges { display: flex; gap: 26px; align-items: flex-start; justify-content: center; margin-bottom: 18px; }
+  .login-badge-col { display: flex; flex-direction: column; align-items: center; gap: 7px; text-decoration: none; }
+  .login-badge-col span { font-size: 11px; color: var(--text-faint); font-weight: 600; }
+
+  /* دایره‌های مداری دور آیکون‌ها (الهام‌گرفته از افکت چرخش نقطه‌ها) */
+  .orbit-stage { position: relative; width: 74px; height: 74px; }
+  .orbit-ring {
+    position: absolute; inset: -16px; border: 1px dashed var(--border); border-radius: 50%; opacity: .55;
+  }
+  .orbit-ring.r2 { inset: -28px; opacity: .3; }
+  .orbit-spin { position: absolute; inset: -16px; animation: spin 5s linear infinite; }
+  .orbit-spin.rev { animation-duration: 7s; animation-direction: reverse; }
+  .orbit-dot {
+    position: absolute; top: -2px; left: 50%; width: 7px; height: 7px; border-radius: 50%;
+    transform: translateX(-50%); background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  }
+  .orbit-dot.violet { background: var(--violet); box-shadow: 0 0 10px var(--violet); top: auto; bottom: -2px; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .animated-logo {
+    width: 74px; height: 74px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 32px; color: #fff; font-family: 'Vazirmatn', system-ui, sans-serif;
+    background: linear-gradient(135deg, #6C5CE7, #4F8BFF, #A855F7, #4F8BFF, #6C5CE7);
+    background-size: 300% 300%;
+    box-shadow: 0 14px 36px rgba(108,92,231,.45);
+    animation: logoHue 6s linear infinite, logoShift 5s ease infinite, logoPulse 2.4s ease-in-out infinite;
+  }
+  .support-triangle {
+    width: 72px; height: 64px;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    background: linear-gradient(135deg, #6C5CE7, #4F8BFF, #A855F7, #4F8BFF, #6C5CE7);
+    background-size: 300% 300%;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 11px;
+    cursor: pointer;
+    animation: logoHue 6s linear infinite, logoShift 5s ease infinite, logoPulse 2.4s ease-in-out infinite;
+  }
+  .support-triangle svg { width: 20px; height: 20px; color: #fff; }
+  @keyframes logoHue { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+  @keyframes logoShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  @keyframes logoPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+  /* افکت رعد و برق گاه‌به‌گاه توی صفحه ورود */
+  .lightning-bolt {
+    position: absolute; pointer-events: none; opacity: 0; color: #fff;
+    filter: drop-shadow(0 0 12px var(--violet)) drop-shadow(0 0 24px var(--accent));
+    animation: lightningFlash 7s ease-in-out infinite;
+  }
+  .lightning-bolt.b1 { top: 6%; left: 8%; width: 34px; animation-delay: 0s; }
+  .lightning-bolt.b2 { top: 14%; right: 10%; width: 26px; animation-delay: 3.2s; }
+  @keyframes lightningFlash {
+    0%, 90%, 100% { opacity: 0; transform: scale(.9) rotate(-4deg); }
+    91% { opacity: 1; transform: scale(1.05) rotate(2deg); }
+    92% { opacity: .2; }
+    93% { opacity: 1; transform: scale(1) rotate(-2deg); }
+    95% { opacity: 0; }
+  }
+
+  .login-card {
+    width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px 28px; box-shadow: var(--shadow);
+  }
+  .login-brand { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .brand-mark svg { width: 19px; height: 19px; }
+  .brand-name { font-weight: 800; font-size: 18px; }
+  .brand-name span { color: var(--accent); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
+  .field input {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 11px 13px; color: var(--text); font-size: 13.5px;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .btn {
+    width: 100%; padding: 12px; border-radius: 9px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    color: #04101F; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 6px;
+  }
+  .login-foot { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-faint); }
+  .form-error {
+    background: rgba(240,89,107,0.12); border: 1px solid var(--danger); color: var(--danger);
+    border-radius: 9px; padding: 9px 12px; font-size: 12.5px; margin-top: 4px; margin-bottom: 8px;
+  }
+  .form-success {
+    background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+    border-radius: 9px; padding: 9px 12px; font-size: 12.5px; margin-top: 4px; margin-bottom: 8px;
+  }
+
+  /* ===== Shell for dashboard-type pages ===== */
+  .shell { display: grid; grid-template-columns: 220px 1fr; max-width: 1200px; margin: 0 auto; }
+  .side {
+    border-left: 1px solid var(--border-soft); padding: 20px 16px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .side-item {
+    padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--text-dim); font-weight: 500;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .side-item.active { background: var(--accent-soft); color: var(--accent); }
+  .side-item svg { width: 16px; height: 16px; opacity: .85; }
+  .content { padding: 20px 24px; }
+  .content-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .content-head h2 { font-size: 18px; font-weight: 700; }
+  .content-head .sub { font-size: 12.5px; color: var(--text-faint); margin-top: 2px; }
+
+  .btn-add {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+    padding: 9px 16px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 17px; box-shadow: var(--shadow); transition: transform .15s, border-color .15s; }
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .stat-card .label { font-size: 11.5px; color: var(--text-faint); font-weight: 600; }
+  .stat-card .val { font-size: 22px; font-weight: 800; margin-top: 5px; }
+  .stat-card .val.blue { color: var(--accent); }
+
+  .table-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: right; font-size: 11.5px; color: var(--text-faint); font-weight: 600;
+    padding: 12px 16px; border-bottom: 1px solid var(--border-soft); background: var(--panel-2);
+  }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--panel-2); }
+  .u-name { font-weight: 600; }
+  .u-name small { display: block; color: var(--text-faint); font-weight: 400; font-size: 11px; margin-top: 1px; }
+  .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+  .badge.on { background: var(--accent-soft); color: var(--accent); }
+  .badge.off { background: rgba(240,89,107,0.14); color: var(--danger); }
+  .u-bar { width: 100px; }
+  .u-bar .track { height: 5px; border-radius: 4px; background: var(--panel-2); overflow: hidden; margin-top: 4px; }
+  .u-bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--violet)); }
+  .u-bar span { font-size: 10.5px; color: var(--text-faint); }
+  .row-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 28px; height: 28px; border-radius: 7px; background: var(--panel-2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .icon-btn svg { width: 13px; height: 13px; color: var(--text-dim); }
+  .icon-btn.danger:hover { border-color: var(--danger); }
+  .icon-btn.danger:hover svg { color: var(--danger); }
+  .icon-btn.link:hover { border-color: var(--accent); }
+  .icon-btn.link:hover svg { color: var(--accent); }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 50%; transform: translateX(50%) translateY(20px);
+    background: var(--panel); border: 1px solid var(--accent); color: var(--text);
+    padding: 10px 18px; border-radius: 10px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(50%) translateY(0); pointer-events: auto; }
+  .toast svg { width: 15px; height: 15px; color: var(--accent); }
+
+  .sub-result {
+    display: none; background: var(--panel-2); border: 1px solid var(--accent);
+    border-radius: 12px; padding: 16px; margin-top: 16px;
+  }
+  .sub-result.show { display: block; }
+  .sub-result .lbl { font-size: 12px; color: var(--text-dim); font-weight: 600; margin-bottom: 8px; }
+  .sub-result .link-row {
+    display: flex; align-items: center; gap: 8px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px;
+  }
+  .sub-result .link-row .mono { flex: 1; font-size: 12px; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sub-result .copy-btn {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+    padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+  }
+
+  /* Add user drawer */
+  .drawer-note {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px; margin-top: 18px; box-shadow: var(--shadow);
+  }
+  .drawer-note h3 { font-size: 14px; margin-bottom: 12px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid .field { margin-bottom: 0; }
+  .form-grid .field.full { grid-column: 1 / -1; }
+
+  /* Nodes page */
+  .node-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .node-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); transition: border-color .15s; }
+  .node-card:hover { border-color: var(--accent); }
+  .node-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .node-top b { font-size: 14px; }
+  .node-ip { font-size: 12px; color: var(--text-faint); margin-bottom: 12px; }
+  .proto-tag {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .proto-tag.vless { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .proto-tag.wg { color: var(--violet); border-color: var(--violet); background: var(--violet-soft); }
+  .node-protos { display: flex; gap: 6px; margin: 10px 0 12px; }
+  .node-stats { display: flex; gap: 18px; font-size: 12px; }
+  .node-stats div span { display: block; color: var(--text-faint); font-size: 10.5px; }
+  .node-stats div b { font-size: 14px; }
+
+  .note-box {
+    background: var(--violet-soft); border: 1px solid var(--violet); border-radius: 12px;
+    padding: 14px 16px; font-size: 12.5px; color: var(--text-dim); margin-bottom: 18px;
+  }
+  .note-box b { color: var(--violet); }
+
+  /* Pricing page */
+  .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* Pricing carousel ("کشویی") */
+  .price-carousel { display: flex; align-items: center; gap: 10px; max-width: 420px; margin: 0 auto; }
+  .price-viewport { flex: 1; overflow: hidden; }
+  .price-track { display: flex; transition: transform .35s cubic-bezier(.4,0,.2,1); }
+  .price-track .price-card { min-width: 100%; margin: 0 2px; }
+  .price-arrow {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text-dim);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .price-arrow:hover { border-color: var(--accent); color: var(--accent); }
+  .price-dots { display: flex; justify-content: center; gap: 7px; margin-top: 16px; }
+  .price-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: all .2s; }
+  .price-dot.active { width: 22px; border-radius: 5px; background: linear-gradient(90deg, var(--accent), var(--violet)); }
+  .price-card {
+    position: relative; overflow: hidden;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px 20px; box-shadow: var(--shadow); transition: transform .15s, border-color .15s;
+  }
+  .price-card:hover { transform: translateY(-3px); }
+  .price-card.featured { border-color: var(--accent); }
+  .price-ribbon {
+    position: absolute; top: 0; left: 0; width: 0; height: 0;
+    border-top: 64px solid var(--accent); border-right: 64px solid transparent;
+  }
+  .price-ribbon span {
+    position: absolute; top: -52px; left: 6px; transform: rotate(-45deg);
+    font-size: 10px; font-weight: 800; color: #04101F; white-space: nowrap;
+  }
+  .price-name { font-size: 14px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; }
+  .price-amount { font-size: 28px; font-weight: 800; margin-bottom: 2px; }
+  .price-amount span { font-size: 13px; font-weight: 500; color: var(--text-faint); }
+  .price-period { font-size: 11.5px; color: var(--text-faint); margin-bottom: 18px; }
+  .price-feats { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .price-feats div { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-dim); }
+  .price-feats svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
+  .price-btn {
+    width: 100%; padding: 10px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer;
+  }
+  .price-card.featured .price-btn { background: linear-gradient(135deg, var(--accent), var(--violet)); color: #04101F; border-color: transparent; }
+
+  /* Login status pill */
+  .login-status-pill {
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    max-width: fit-content; margin: 0 auto 20px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 20px; padding: 8px 16px; font-size: 12px; color: var(--text-dim); font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .sdot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  /* Server specs dedicated page */
+  .spec-hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  .spec-hero-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); text-align: center; }
+  .spec-hero-card .si { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display:flex; align-items:center; justify-content:center; margin: 0 auto 10px; }
+  .spec-hero-card .si svg { width: 19px; height: 19px; }
+  .spec-hero-card .sv { font-size: 20px; font-weight: 800; }
+  .spec-hero-card .sl { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; }
+  .spec-detail-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .spec-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-top: 1px solid var(--border-soft); font-size: 13px; }
+  .spec-row:first-child { border-top: none; }
+  .spec-row span:first-child { color: var(--text-faint); }
+  .spec-row span:last-child { font-weight: 700; }
+  .spec-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  @media (max-width: 760px) {
+    .price-grid { grid-template-columns: 1fr; }
+    .shell { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .node-grid { grid-template-columns: 1fr; }
+  }
+
+  /* SPEED NET ULTRA - ENHANCED */
+  :root{--sn-a:#7b5cff;--sn-b:#20baff;--sn-glass:rgba(15,19,38,.84)}
+  body{background:radial-gradient(circle at 8% 5%,rgba(123,92,255,.18),transparent 28%),radial-gradient(circle at 92% 8%,rgba(32,186,255,.11),transparent 25%),linear-gradient(rgba(150,170,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(150,170,255,.035) 1px,transparent 1px),var(--bg);background-size:auto,auto,42px 42px,42px 42px}
+  .top-header{background:rgba(6,7,18,.72)!important;backdrop-filter:blur(18px);border-bottom:1px solid rgba(130,145,255,.18);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+  .top-header .brand-mark,.login-brand .brand-mark{background:linear-gradient(135deg,var(--sn-a),var(--sn-b))!important;box-shadow:0 10px 35px rgba(108,78,255,.35);border-radius:13px!important}
+  .page-tabs{backdrop-filter:blur(12px);background:linear-gradient(180deg,rgba(6,7,18,.88),transparent)!important}
+  .page-tab{border-radius:12px!important;transition:.2s!important}
+  .page-tab:hover{transform:translateY(-2px)}
+  .page-tab.active{background:linear-gradient(135deg,var(--sn-a),var(--sn-b))!important;color:#fff!important;box-shadow:0 10px 32px rgba(99,76,255,.28)!important}
+  .login-card,.stat-card,.table-card,.node-card,.price-card,.spec-detail-card,.spec-hero-card{background:linear-gradient(145deg,rgba(24,29,55,.91),rgba(10,13,28,.84))!important;border:1px solid rgba(133,122,255,.2)!important;box-shadow:0 25px 70px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.04)!important;backdrop-filter:blur(16px)}
+  .login-card{border-radius:24px!important}
+  .login-card:before{content:"";display:block;width:90px;height:4px;margin:-34px auto 27px;border-radius:9px;background:linear-gradient(90deg,var(--sn-a),var(--sn-b));box-shadow:0 0 25px rgba(123,92,255,.5)}
+  .field input{border-radius:12px!important;background:rgba(255,255,255,.035)!important;transition:.2s!important}
+  .field input:focus{box-shadow:0 0 0 4px rgba(123,92,255,.1)!important;border-color:rgba(123,92,255,.6)!important}
+  .btn{background:linear-gradient(135deg,var(--sn-a),var(--sn-b))!important;border-radius:12px!important;box-shadow:0 12px 32px rgba(94,73,245,.28)!important;transition:.2s!important}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(94,73,245,.38)!important}
+  .side-item{border-radius:11px!important;transition:.18s!important}
+  .side-item:hover{transform:translateX(-2px)}
+  .side-item.active{background:linear-gradient(90deg,rgba(123,92,255,.17),rgba(32,186,255,.05))!important;border:1px solid rgba(123,92,255,.14)}
+  .stat-card,.table-card,.node-card,.price-card{border-radius:18px!important}
+  .stat-card{position:relative;overflow:hidden}
+  .stat-card:after{content:"";position:absolute;width:120px;height:120px;left:-55px;bottom:-65px;background:radial-gradient(circle,rgba(123,92,255,.18),transparent 70%)}
+  tbody tr{transition:.18s!important}
+  tbody tr:hover{background:rgba(123,92,255,.045)!important}
+  .u-bar .track{height:6px!important;border-radius:99px!important}
+  .u-bar .fill{background:linear-gradient(90deg,var(--sn-a),var(--sn-b))!important}
+  .node-card,.price-card{transition:.22s!important}
+  .node-card:hover{transform:translateY(-4px)}
+  .price-card:hover{transform:translateY(-7px)}
+  .price-card.featured{border-color:rgba(123,92,255,.62)!important}
+  .price-card.featured .price-btn{background:linear-gradient(135deg,var(--sn-a),var(--sn-b))!important;color:#fff!important}
+  .note-box,.sub-result{border-radius:14px!important}
+  .toast{border-radius:13px!important;backdrop-filter:blur(15px)}
+  @media(max-width:760px){.top-header .protos-mini{display:none!important}.page-tabs{overflow-x:auto!important;flex-wrap:nowrap!important;scrollbar-width:none}.page-tab{white-space:nowrap}.table-card{overflow-x:auto}table{min-width:700px}}
+
+</style>
+</head>
+<body>
+
+  <!-- ==================== ENHANCED TOP HEADER (higer + more icons) ==================== -->
+  <div class="top-header">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M3 13L11 3V10H21L13 21V14H3Z" fill="#04101F"/></svg></div>
+      <div class="brand-name">اسپید <span>پنل</span></div>
+    </div>
+    <div class="protos-mini">
+      <span class="proto-tag vless">VLESS</span>
+      <span class="proto-tag wg">WireGuard</span>
+    </div>
+    <div class="extra-icons">
+      <!-- Extra beautiful icons -->
+      <div class="icon-btn" onclick="toggleSidebar()" title="منوی سمت چپ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </div>
+      <div class="icon-btn" onclick="showToast()" title="لینک ساب">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+      </div>
+      <div class="icon-btn" onclick="alert('پشتیبانی تلگرام: @Config_v2rey_ir')" title="پشتیبانی">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE TABS (higher, floating, bigger) ==================== -->
+  <div class="page-tabs">
+    <div class="page-tab active" data-page="login">صفحه ورود</div>
+    <div class="page-tab" data-page="users">مدیریت کاربران</div>
+    <div class="page-tab" data-page="adduser">افزودن کاربر</div>
+    <div class="page-tab" data-page="nodes">سرورها (نودها)</div>
+    <div class="page-tab" data-page="pricing">هزینه‌ها</div>
+    <div class="page-tab" data-page="serverspecs">مشخصات سرور</div>
+    <div class="page-tab" data-page="settings">تنظیمات</div>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <section class="page active" id="page-login">
+    <div class="login-wrap" style="flex-direction:column">
+      <svg class="lightning-bolt b1" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 11-14h-7l0-6z"/></svg>
+      <svg class="lightning-bolt b2" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 11-14h-7l0-6z"/></svg>
+      <div class="login-badges">
+        <div class="login-badge-col">
+          <div class="orbit-stage">
+            <div class="orbit-ring"></div>
+            <div class="orbit-ring r2"></div>
+            <div class="orbit-spin"><span class="orbit-dot"></span></div>
+            <div class="orbit-spin rev"><span class="orbit-dot violet"></span></div>
+            <div class="animated-logo">S</div>
+          </div>
+          <span>اسپید پنل</span>
+        </div>
+        <a class="login-badge-col" href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener">
+          <div class="orbit-stage">
+            <div class="orbit-ring"></div>
+            <div class="orbit-ring r2"></div>
+            <div class="orbit-spin"><span class="orbit-dot"></span></div>
+            <div class="orbit-spin rev"><span class="orbit-dot violet"></span></div>
+            <div class="support-triangle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>
+            </div>
+          </div>
+          <span>پشتیبانی</span>
+        </a>
+      </div>
+      <div class="login-status-pill" id="statusPill"><span class="sdot"></span>سرور آنلاین — در حال بررسی...</div>
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M3 13L11 3V10H21L13 21V14H3Z" fill="#04101F"/></svg></div>
+          <div class="brand-name">اسپید <span>پنل</span></div>
+        </div>
+        <form onsubmit="handleLogin(event)">
+          <div class="field"><label>رمز عبور پنل</label><input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" required autofocus /></div>
+          <div id="loginError" class="form-error" style="display:none"></div>
+          <button id="loginBtn" class="btn" type="submit">ورود به پنل</button>
+        </form>
+        <div class="login-foot">فقط ادمین‌ها به این صفحه دسترسی دارن</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USERS / DASHBOARD PAGE -->
+  <section class="page" id="page-users">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/></svg>سرورها</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>گزارش‌ها</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7M12 12a4 4 0 100-8 4 4 0 000 8z"/></svg>ادمین‌ها</div>
+        <div class="side-item" data-page="settings" onclick="switchTab('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>تنظیمات</div>
+        <a class="side-item" href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>پشتیبانی تلگرام</a>
+      </aside>
+
+      <div class="content">
+        <div class="content-head">
+          <div><h2>مدیریت کاربران</h2><div class="sub">لیست همه‌ی کاربرهایی که کانفیگ دارن</div></div>
+          <button class="btn-add" onclick="document.querySelector('[data-page=adduser]').click()">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+            کاربر جدید
+          </button>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-card"><div class="label">کل کاربران</div><div class="val">۴</div></div>
+          <div class="stat-card"><div class="label">فعال</div><div class="val blue">۳</div></div>
+          <div class="stat-card"><div class="label">غیرفعال</div><div class="val">۱</div></div>
+          <div class="stat-card"><div class="label">مجموع ترافیک</div><div class="val">۱۸۲ GB</div></div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr><th>کاربر</th><th>وضعیت</th><th>مصرف</th><th>انقضا</th><th>لینک ساب</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="u-name">ali_01<small>ساخته‌شده ۵ روز پیش</small></td>
+                <td><span class="badge on">فعال</span></td>
+                <td class="u-bar"><span class="mono">32 / 50 GB</span><div class="track"><div class="fill" style="width:64%"></div></div></td>
+                <td class="mono">۲۵ روز مانده</td>
+                <td><div class="icon-btn link" onclick="copySub('https://sub.speednet.app/a1b2c3d4e5f6a7b8')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></div></td>
+                <td><div class="row-actions"><div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg></div></div></td>
+              </tr>
+              <tr>
+                <td class="u-name">reza_vpn<small>ساخته‌شده ۱۲ روز پیش</small></td>
+                <td><span class="badge on">فعال</span></td>
+                <td class="u-bar"><span class="mono">78 / 100 GB</span><div class="track"><div class="fill" style="width:78%"></div></div></td>
+                <td class="mono">۱۸ روز مانده</td>
+                <td><div class="icon-btn link" onclick="copySub('https://sub.speednet.app/d4e5f6a7b8c9d0e1')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></div></td>
+                <td><div class="row-actions"><div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg></div></div></td>
+              </tr>
+              <tr>
+                <td class="u-name">sara_m<small>ساخته‌شده ۲۰ روز پیش</small></td>
+                <td><span class="badge off">غیرفعال</span></td>
+                <td class="u-bar"><span class="mono">50 / 50 GB</span><div class="track"><div class="fill" style="width:100%"></div></div></td>
+                <td class="mono">منقضی شده</td>
+                <td><div class="icon-btn link" onclick="copySub('https://sub.speednet.app/g7h8i9j0k1l2m3n4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></div></td>
+                <td><div class="row-actions"><div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg></div></div></td>
+              </tr>
+              <tr>
+                <td class="u-name">mohammad_t<small>ساخته‌شده ۱ روز پیش</small></td>
+                <td><span class="badge on">فعال</span></td>
+                <td class="u-bar"><span class="mono">4 / 20 GB</span><div class="track"><div class="fill" style="width:20%"></div></div></td>
+                <td class="mono">۲۹ روز مانده</td>
+                <td><div class="icon-btn link" onclick="copySub('https://sub.speednet.app/j1k2l3m4n5o6p7q8')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg></div></td>
+                <td><div class="row-actions"><div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg></div></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADD USER PAGE -->
+  <section class="page" id="page-adduser">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>افزودن کاربر</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>سرورها</div>
+      </aside>
+      <div class="content">
+        <div class="content-head"><div><h2>افزودن کاربر جدید</h2><div class="sub">این فرم دقیقاً همون فیلدهاییه که API الان پشتیبانی می‌کنه</div></div></div>
+
+        <div class="note-box"><b>نکته:</b> این فرم مستقیم به اندپوینت <span class="mono">POST /users</span> وصله و کاربر رو فوراً می‌سازه.</div>
+
+        <div class="drawer-note">
+          <h3>مشخصات کاربر</h3>
+          <div class="form-grid">
+            <div class="field full"><label>نام کاربری</label><input type="text" placeholder="مثلاً ali_01" /></div>
+            <div class="field"><label>محدودیت حجم (گیگابایت)</label><input type="text" placeholder="50" /></div>
+            <div class="field"><label>مدت اعتبار (روز)</label><input type="text" placeholder="30" /></div>
+            <div class="field"><label>تعداد دستگاه مجاز</label><input type="text" placeholder="2" /></div>
+            <div class="field"><label>محدودیت سرعت (Mbps، خالی = نامحدود)</label><input type="text" placeholder="نامحدود" /></div>
+            <div class="field full">
+              <label>پروتکل</label>
+              <div style="display:flex; gap:8px">
+                <span class="proto-tag vless" style="padding:9px 16px; font-size:12.5px; cursor:pointer">VLESS</span>
+                <span class="proto-tag wg" style="padding:9px 16px; font-size:12.5px; cursor:pointer">WireGuard</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn" style="margin-top:18px" onclick="showSubResult()">ساخت کاربر</button>
+
+          <div class="sub-result" id="subResult">
+            <div class="lbl">کاربر ساخته شد — این لینک ساب اونه</div>
+            <div class="link-row">
+              <span class="mono" id="subLinkText">https://sub.speednet.app/9f8e7d6c5b4a3210</span>
+              <button class="copy-btn" onclick="copySub(document.getElementById('subLinkText').textContent)">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+                کپی لینک
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NODES PAGE -->
+  <section class="page" id="page-nodes">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/></svg>سرورها</div>
+      </aside>
+      <div class="content">
+        <div class="content-head"><div><h2>سرورها (نودها)</h2><div class="sub">مدیریت سرورها و پروتکل‌های فعال روی هرکدوم</div></div></div>
+        <div class="note-box"><b>وضعیت:</b> همه سرورها آنلاین و از پروتکل‌های VLESS و WireGuard پشتیبانی می‌کنن.</div>
+        <div class="node-grid">
+          <div class="node-card">
+            <div class="node-top"><b>🇩🇪 فرانکفورت ۱</b><span class="badge on">آنلاین</span></div>
+            <div class="node-ip mono">185.xx.xx.12</div>
+            <div class="node-protos"><span class="proto-tag vless">VLESS</span><span class="proto-tag wg">WireGuard</span></div>
+            <div class="node-stats"><div><span>کاربرها</span><b>۶۴</b></div><div><span>بار CPU</span><b>۴۲٪</b></div></div>
+          </div>
+          <div class="node-card">
+            <div class="node-top"><b>🇳🇱 آمستردام ۱</b><span class="badge on">آنلاین</span></div>
+            <div class="node-ip mono">45.xx.xx.88</div>
+            <div class="node-protos"><span class="proto-tag vless">VLESS</span><span class="proto-tag wg">WireGuard</span></div>
+            <div class="node-stats"><div><span>کاربرها</span><b>۳۱</b></div><div><span>بار CPU</span><b>۲۸٪</b></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING PAGE -->
+  <section class="page" id="page-pricing">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/></svg>سرورها</div>
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h18"/></svg>هزینه‌ها</div>
+        <a class="side-item" href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>پشتیبانی تلگرام</a>
+      </aside>
+      <div class="content">
+        <div class="content-head"><div><h2>پلن‌ها و هزینه‌ها</h2><div class="sub">تعرفه‌ای که به مشتری‌ها نشون داده می‌شه</div></div></div>
+
+        <div class="price-carousel">
+          <button class="price-arrow prev" onclick="priceGo(priceIndex-1)" aria-label="پلن قبلی">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+          </button>
+          <div class="price-viewport">
+            <div class="price-track" id="priceTrack">
+              <div class="price-card">
+                <div class="price-name">پایه</div>
+                <div class="price-amount">۹۹<span> هزار تومان</span></div>
+                <div class="price-period">۳۰ گیگابایت · ۳۰ روز</div>
+                <div class="price-feats">
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پروتکل VLESS</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>۱ دستگاه همزمان</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پشتیبانی تلگرام</div>
+                </div>
+                <button class="price-btn">انتخاب پلن</button>
+              </div>
+
+              <div class="price-card featured">
+                <div class="price-ribbon"><span>پرفروش</span></div>
+                <div class="price-name">حرفه‌ای</div>
+                <div class="price-amount">۲۴۹<span> هزار تومان</span></div>
+                <div class="price-period">۱۰۰ گیگابایت · ۳۰ روز</div>
+                <div class="price-feats">
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پروتکل VLESS + WireGuard</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>۳ دستگاه همزمان</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>سرعت اولویت‌دار</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پشتیبانی تلگرام</div>
+                </div>
+                <button class="price-btn">انتخاب پلن</button>
+              </div>
+
+              <div class="price-card">
+                <div class="price-name">نامحدود</div>
+                <div class="price-amount">۴۹۹<span> هزار تومان</span></div>
+                <div class="price-period">حجم نامحدود · ۳۰ روز</div>
+                <div class="price-feats">
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پروتکل VLESS + WireGuard</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>۵ دستگاه همزمان</div>
+                  <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>پشتیبانی ویژه ۲۴/۷</div>
+                </div>
+                <button class="price-btn">انتخاب پلن</button>
+              </div>
+            </div>
+          </div>
+          <button class="price-arrow next" onclick="priceGo(priceIndex+1)" aria-label="پلن بعدی">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="price-dots" id="priceDots">
+          <span class="price-dot active" onclick="priceGo(0)"></span>
+          <span class="price-dot" onclick="priceGo(1)"></span>
+          <span class="price-dot" onclick="priceGo(2)"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVER SPECS PAGE -->
+  <section class="page" id="page-serverspecs">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/></svg>سرورها</div>
+        <div class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h18"/></svg>هزینه‌ها</div>
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>مشخصات سرور</div>
+        <a class="side-item" href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>پشتیبانی تلگرام</a>
+      </aside>
+      <div class="content">
+        <div class="content-head"><div><h2>مشخصات سرور</h2><div class="sub">جزئیات فنی سروری که پنل روش اجرا می‌شه (Railway)</div></div></div>
+
+        <div class="spec-hero">
+          <div class="spec-hero-card">
+            <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg></div>
+            <div class="sv mono">4 هسته</div>
+            <div class="sl">پردازنده (vCPU)</div>
+          </div>
+          <div class="spec-hero-card">
+            <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4M11 10v4M15 10v4"/></svg></div>
+            <div class="sv mono">8 GB</div>
+            <div class="sl">حافظه (RAM)</div>
+          </div>
+          <div class="spec-hero-card">
+            <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
+            <div class="sv mono">۴۰ GB</div>
+            <div class="sl">فضای دیسک</div>
+          </div>
+          <div class="spec-hero-card">
+            <div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0116 0M4 12l16 0M12 4v16"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div>
+            <div class="sv mono">۳۲ ms</div>
+            <div class="sl">تاخیر شبکه</div>
+          </div>
+        </div>
+
+        <div class="spec-two-col">
+          <div class="spec-detail-card">
+            <h3 style="font-size:14px; margin-bottom:10px">اطلاعات هاست</h3>
+            <div class="spec-row"><span>ارائه‌دهنده</span><span>Railway</span></div>
+            <div class="spec-row"><span>منطقه سرور</span><span>Europe (فرانکفورت)</span></div>
+            <div class="spec-row"><span>وضعیت</span><span style="color:var(--accent)">آنلاین</span></div>
+            <div class="spec-row"><span>آخرین ری‌استارت</span><span class="mono">۳ روز پیش</span></div>
+            <div class="spec-row"><span>Health Check</span><span style="color:var(--accent)">فعال ✓</span></div>
+          </div>
+          <div class="spec-detail-card">
+            <h3 style="font-size:14px; margin-bottom:10px">مصرف منابع (لحظه‌ای)</h3>
+            <div class="spec-row"><span>مصرف CPU</span><span class="mono">۲۹٪</span></div>
+            <div class="spec-row"><span>مصرف رم</span><span class="mono">۲.۸ / ۸ GB</span></div>
+            <div class="spec-row"><span>پهنای باند این ماه</span><span class="mono">۱۸۲ GB</span></div>
+            <div class="spec-row"><span>تعداد ری‌استارت خودکار</span><span class="mono">۰</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS PAGE -->
+  <section class="page" id="page-settings">
+    <div class="shell">
+      <aside class="side">
+        <div class="side-item" data-page="users" onclick="switchTab('users')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>کاربران</div>
+        <div class="side-item" data-page="nodes" onclick="switchTab('nodes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/></svg>سرورها</div>
+        <div class="side-item" data-page="pricing" onclick="switchTab('pricing')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h18"/></svg>هزینه‌ها</div>
+        <div class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>تنظیمات</div>
+        <a class="side-item" href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 3L2 11l6 2m13-10l-4 17-7-6m11-11L8 13m0 0v6"/></svg>پشتیبانی تلگرام</a>
+      </aside>
+      <div class="content">
+        <div class="content-head"><div><h2>تنظیمات</h2><div class="sub">تغییر رمز عبور ورود به پنل</div></div></div>
+
+        <div class="drawer-note" style="max-width:420px">
+          <h3>تغییر رمز عبور</h3>
+          <form onsubmit="handleChangePassword(event)">
+            <div class="field"><label>رمز عبور فعلی</label><input id="cpCurrent" type="password" placeholder="••••••••" autocomplete="current-password" required /></div>
+            <div class="field"><label>رمز عبور جدید</label><input id="cpNew" type="password" placeholder="حداقل ۴ کاراکتر" autocomplete="new-password" required minlength="4" /></div>
+            <div class="field"><label>تکرار رمز عبور جدید</label><input id="cpNew2" type="password" placeholder="••••••••" autocomplete="new-password" required minlength="4" /></div>
+            <div id="cpError" class="form-error" style="display:none"></div>
+            <div id="cpSuccess" class="form-success" style="display:none"></div>
+            <button class="btn" type="submit">تغییر رمز عبور</button>
+          </form>
+        </div>
+
+        <div class="drawer-note" style="max-width:420px; margin-top:16px">
+          <h3>خروج از پنل</h3>
+          <button class="btn" style="background:linear-gradient(135deg,var(--danger),#c9455a)" onclick="logout()">خروج از حساب</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+    لینک ساب کپی شد
+  </div>
+
+<script>
+  // Sidebar toggle for beauty
+  function toggleSidebar() {
+    const side = document.querySelector('.side');
+    side.style.display = side.style.display === 'none' ? 'flex' : 'none';
+    showToast('منوی سمت چپ باز/بسته شد');
+  }
+
+  // Copy function
+  function copySub(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    showToast();
+  }
+
+  // Toast
+  function showToast(message = 'لینک ساب کپی شد') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+
+  function showSubResult() {
+    document.getElementById('subResult').classList.add('show');
+  }
+
+  // Theme button (already there, just keep it beautiful)
+  (function(){
+    const root=document.documentElement;
+    let b=document.createElement('button');
+    b.id='snThemeBtn';b.type='button';b.textContent='☼';b.title='تغییر تم';
+    b.style.cssText='position:fixed;left:18px;bottom:18px;z-index:9999;width:42px;height:42px;border:1px solid rgba(123,92,255,.35);border-radius:13px;background:linear-gradient(135deg,#7b5cff,#20baff);color:white;font-size:19px;box-shadow:0 10px 30px rgba(0,0,0,.3);cursor:pointer';
+    document.body.appendChild(b);
+    const saved=localStorage.getItem('speednet-theme');
+    if(saved)root.setAttribute('data-theme',saved);
+    b.onclick=function(){
+      const n=root.getAttribute('data-theme')==='light'?'dark':'light';
+      root.setAttribute('data-theme',n);
+      localStorage.setItem('speednet-theme',n);
+      showToast(n==='light'?'تم روشن فعال شد':'تم تاریک فعال شد');
+    };
+  })();
+
+  // صفحاتی که فقط بعد از ورود موفق قابل دیدنن
+  const PROTECTED_PAGES = ['users', 'adduser', 'nodes', 'pricing', 'serverspecs', 'settings'];
+
+  // Tab switching — usable from both top tabs and sidebar links
+  function switchTab(pageName) {
+    if (PROTECTED_PAGES.includes(pageName) && !getToken()) {
+      pageName = 'login';
+    }
+    document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.page === pageName));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + pageName);
+    if (target) target.classList.add('active');
+  }
+  document.querySelectorAll('.page-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.page));
+  });
+
+  // قبل از ورود، فقط تب «صفحه ورود» دیده می‌شه؛ بقیه گزینه‌ها مخفی می‌مونن
+  function updateNavVisibility() {
+    const loggedIn = !!getToken();
+    document.querySelectorAll('.page-tab').forEach(t => {
+      t.style.display = PROTECTED_PAGES.includes(t.dataset.page) && !loggedIn ? 'none' : '';
+    });
+  }
+
+  function logout() {
+    clearToken();
+    updateNavVisibility();
+    switchTab('login');
+    showToast('از پنل خارج شدید');
+  }
+
+  // ==================== قیمت‌ها به‌صورت کشویی (کاروسل) ====================
+  let priceIndex = 0;
+  const priceCount = 3;
+  function priceGo(i) {
+    priceIndex = (i + priceCount) % priceCount;
+    document.getElementById('priceTrack').style.transform = `translateX(${priceIndex * 100}%)`;
+    document.querySelectorAll('.price-dot').forEach((d, idx) => d.classList.toggle('active', idx === priceIndex));
+  }
+
+  // ==================== اتصال به بک‌اند (ورود ادمین) ====================
+  // آدرس API: چون پنل از همون سروری که بک‌اند روشه سرو می‌شه (روی مسیر /panel)،
+  // با آدرس نسبی به ریشه سایت (../) به اندپوینت‌های API می‌رسیم.
+  const API_BASE = window.location.origin;
+
+  function getToken() { return localStorage.getItem('sn_admin_token'); }
+  function setToken(t) { localStorage.setItem('sn_admin_token', t); }
+  function clearToken() { localStorage.removeItem('sn_admin_token'); }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    const username = 'admin';
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    const errBox = document.getElementById('loginError');
+    errBox.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'در حال ورود...';
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errBox.textContent = data.detail || 'ورود ناموفق بود';
+        errBox.style.display = 'block';
+        return;
+      }
+      setToken(data.token);
+      showToast('ورود موفق');
+      updateNavVisibility();
+      switchTab('users');
+    } catch (err) {
+      errBox.textContent = 'اتصال به سرور برقرار نشد. اتصال اینترنت یا آدرس سرور رو چک کن.';
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'ورود به پنل';
+    }
+  }
+
+  async function handleChangePassword(event) {
+    event.preventDefault();
+    const current_password = document.getElementById('cpCurrent').value;
+    const new_password = document.getElementById('cpNew').value;
+    const new_password2 = document.getElementById('cpNew2').value;
+    const errBox = document.getElementById('cpError');
+    const okBox = document.getElementById('cpSuccess');
+    errBox.style.display = 'none';
+    okBox.style.display = 'none';
+
+    if (new_password !== new_password2) {
+      errBox.textContent = 'رمز جدید و تکرار آن یکسان نیستند';
+      errBox.style.display = 'block';
+      return;
+    }
+    const token = getToken();
+    if (!token) {
+      errBox.textContent = 'ابتدا وارد پنل شوید';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/admin/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ current_password, new_password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errBox.textContent = data.detail || 'تغییر رمز ناموفق بود';
+        errBox.style.display = 'block';
+        return;
+      }
+      okBox.textContent = 'رمز عبور تغییر کرد. دوباره وارد شوید.';
+      okBox.style.display = 'block';
+      clearToken();
+      updateNavVisibility();
+      document.getElementById('cpCurrent').value = '';
+      document.getElementById('cpNew').value = '';
+      document.getElementById('cpNew2').value = '';
+      setTimeout(() => switchTab('login'), 1500);
+    } catch (err) {
+      errBox.textContent = 'اتصال به سرور برقرار نشد';
+      errBox.style.display = 'block';
+    }
+  }
+
+  // وضعیت واقعی سرور (نام هاست و منطقه) رو از بک‌اند می‌گیره و توی نوار بالای صفحه ورود نشون می‌ده
+  async function loadServerStatus() {
+    const pill = document.getElementById('statusPill');
+    try {
+      const res = await fetch(`${API_BASE}/status`);
+      const data = await res.json();
+      pill.innerHTML = `<span class="sdot"></span>سرور آنلاین — ${data.host} · ${data.region}`;
+    } catch (err) {
+      pill.innerHTML = `<span class="sdot" style="background:var(--danger)"></span>وضعیت سرور نامشخص`;
+    }
+  }
+  loadServerStatus();
+
+  // اجرای اولیه: اگه لاگین نیستی، فقط تب ورود دیده می‌شه
+  updateNavVisibility();
+  if (!getToken()) switchTab('login');
+
+</script>
+
+</body>
+</html>
