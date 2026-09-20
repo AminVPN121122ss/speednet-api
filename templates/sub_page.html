@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اسپید پنل — اشتراک شما</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0A0A1F; --panel: #161230; --panel-2: #1C1740;
+    --border: #2E2560; --border-soft: #221C4A; --text: #ECEAFB; --text-dim: #A79FD6;
+    --text-faint: #6B62A0; --accent: #6C5CE7; --violet: #4F8BFF;
+    --accent-soft: rgba(108,92,231,0.16); --danger: #F0596B;
+    --shadow: 0 20px 50px -20px rgba(10,5,40,0.7);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 8% 5%, rgba(123,92,255,.16), transparent 30%),
+                radial-gradient(circle at 92% 10%, rgba(79,139,255,.12), transparent 28%), var(--bg);
+    color: var(--text); font-family: 'Vazirmatn', system-ui, sans-serif;
+    min-height: 100vh; padding: 28px 16px 60px; line-height: 1.7;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; direction: ltr; unicode-bidi: embed; }
+  .wrap { max-width: 460px; margin: 0 auto; }
+
+  .brand-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 22px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #fff;
+    background: linear-gradient(135deg, #6C5CE7, #4F8BFF, #A855F7, #4F8BFF, #6C5CE7);
+    background-size: 300% 300%; animation: hue 6s linear infinite, shift 5s ease infinite;
+  }
+  @keyframes hue { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
+  @keyframes shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  .brand-name { font-weight: 800; font-size: 19px; }
+  .brand-name span { color: var(--accent); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+    padding: 22px; box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .u-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .u-head h2 { font-size: 16px; font-weight: 700; }
+  .badge { font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 20px; }
+  .badge.on { background: var(--accent-soft); color: var(--accent); }
+  .badge.off { background: rgba(240,89,107,0.14); color: var(--danger); }
+
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--border-soft); font-size: 13px; }
+  .row:first-child { border-top: none; }
+  .row span:first-child { color: var(--text-faint); }
+  .row span:last-child { font-weight: 700; }
+  .bar-track { height: 6px; border-radius: 4px; background: var(--panel-2); overflow: hidden; margin-top: 8px; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--violet)); }
+
+  .qr-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0 4px; }
+  #qrcode { background: #fff; padding: 10px; border-radius: 12px; }
+  .qr-hint { font-size: 11.5px; color: var(--text-faint); text-align: center; }
+
+  .cfg-item {
+    display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px;
+  }
+  .cfg-item .ci-name { flex: 1; overflow: hidden; }
+  .cfg-item .ci-name b { font-size: 12.5px; font-weight: 700; display: block; }
+  .cfg-item .ci-name small { font-size: 10.5px; color: var(--text-faint); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn {
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+    padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+  }
+
+  .big-copy {
+    width: 100%; padding: 13px; border-radius: 11px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--violet)); color: #fff;
+    font-weight: 700; font-size: 13.5px; margin-top: 4px;
+  }
+
+  .apps-list { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11.5px; color: var(--text-dim); }
+  .apps-list span { background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 11px; }
+
+  .foot { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-faint); }
+  .foot a { color: var(--accent); font-weight: 600; }
+
+  .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--panel); border: 1px solid var(--accent); color: var(--text);
+    padding: 10px 18px; border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s; box-shadow: var(--shadow); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand-row">
+      <div class="brand-mark">S</div>
+      <div class="brand-name">اسپید <span>پنل</span></div>
+    </div>
+
+    <div class="card">
+      <div class="u-head">
+        <h2>%%USERNAME%%</h2>
+        <span class="badge %%STATUS_CLASS%%">%%STATUS_LABEL%%</span>
+      </div>
+      <div class="row"><span>مصرف</span><span class="mono">%%USED_GB%% / %%LIMIT_GB%% GB</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:%%USAGE_PERCENT%%%"></div></div>
+      <div class="row" style="margin-top:6px"><span>انقضا</span><span>%%EXPIRE_LABEL%%</span></div>
+      <div class="row"><span>تعداد دستگاه مجاز</span><span>%%DEVICE_LIMIT%%</span></div>
+    </div>
+
+    <div class="card">
+      <div class="qr-wrap">
+        <div id="qrcode"></div>
+        <div class="qr-hint">این QR رو با اپ v2ray خودت اسکن کن</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:14px; margin-bottom:12px">کانفیگ‌های شما</h2>
+      %%CONFIG_ITEMS%%
+      <button class="big-copy" onclick="copyText('%%SUB_LINK%%')">کپی لینک اشتراک (برای اپ)</button>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:14px; margin-bottom:10px">اپ‌های پیشنهادی</h2>
+      <div class="apps-list">
+        <span>v2rayNG (اندروید)</span>
+        <span>Streisand (آیفون)</span>
+        <span>NekoBox (ویندوز)</span>
+        <span>Hiddify</span>
+      </div>
+    </div>
+
+    <div class="foot">پشتیبانی: <a href="https://t.me/Config_v2rey_ir" target="_blank" rel="noopener">@Config_v2rey_ir</a></div>
+  </div>
+
+  <div class="toast" id="toast">کپی شد</div>
+
+<script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "%%QR_TEXT%%",
+    width: 168, height: 168,
+    colorDark: "#160F33", colorLight: "#ffffff",
+  });
+
+  function copyText(text) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+</script>
+</body>
+</html>
